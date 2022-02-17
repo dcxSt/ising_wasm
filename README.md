@@ -1,9 +1,6 @@
-# Game of Life Example
+# Ising
 
-[![Demo](https://img.shields.io/website?label=demo&url=https%3A%2F%2Fexamples.yew.rs%2Fgame_of_life)](https://examples.yew.rs/game_of_life)
-
-This example boasts a complete implementation of [Conway's Game of Life](https://en.wikipedia.org/wiki/Conway's_Game_of_Life).
-You can manually toggle cells by clicking on them or create a random layout by pressing the "Random" button.
+This project is a precursor to an improved `ising-lib` rust crate. It displays the ising model propagation. The improved `ising-lib` will be designed with both computation and exposition in mind, so that you can easily use it in a playground for displaying simulations, but also so that you can actually measure interesting properties with it. Including ising model simulations of interesting graph structures, such as those found in management science papers (as in Song et Al (link comming soon))
 
 ## Running
 
@@ -18,9 +15,7 @@ trunk serve --release
 - Uses [`gloo_timer`](https://gloo-rs.web.app/docs/timer) to automatically step the simulation.
 - Logs to the console using the [`weblog`](https://crates.io/crates/weblog) crate.
 
-# Ising
-
-Some thoughts on a new, more expansive, architecture:
+## Some thoughts on a new, more expansive, architecture:
 
 Custon Types (and subtypes)
 - `Struct Lattice`
