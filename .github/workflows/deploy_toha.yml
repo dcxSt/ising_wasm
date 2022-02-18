@@ -1,0 +1,25 @@
+name: Deploy to GitHup Pages
+
+# run when a commit is pushed to "gh-pages" branch
+on:
+  push:
+    branches:
+      - gh-pages
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # checkout to the commit that has been pushed
+      - uses: actions/checkout@v2
+
+      # install node
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '15'
+ 
+      # install http-server
+      - run: npm install --global http-server
+
+      # serve the site
+      - run: http-server
