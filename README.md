@@ -10,10 +10,6 @@ This example is quite resource intensive; it's recommended that you only use it 
 trunk serve --release
 ```
 
-## Concepts
-
-- Uses [`gloo_timer`](https://gloo-rs.web.app/docs/timer) to automatically step the simulation.
-- Logs to the console using the [`weblog`](https://crates.io/crates/weblog) crate.
 
 ## Some thoughts on a new, more expansive, architecture:
 
