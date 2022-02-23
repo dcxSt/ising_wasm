@@ -72,13 +72,19 @@ body {
 
 .game-row {
   line-height: 0;
+  margin: 0;
+  margin-top: 0px;/*-1.3px;-> for 4px*//*-3.2px;-> for 2px squares*/ /*If you want the pixels smaller / bigger, play with this*/
+  /*margin-bottom: -2px;*/
+  /*padding: 0;*/
+  /*min-height: 0;*/
+  /*vertical-align: top;*/
 }
 
 .game-cellule {
   display: inline-block;
-  width: 8px;
-  height: 8px;
-  border: 1px solid #ccc;
+  width: 5px; /*need to adjust margin-top if you change these*/
+  height: 5px; /*need to adjust margin-top if you change these*/
+  /*border: 0.1px solid #222;/*#ccc;*/*/
 }
 
 .cellule-dead {
@@ -102,3 +108,6 @@ body {
     transform: scale(1.2);
   }
 }
+
+
+
