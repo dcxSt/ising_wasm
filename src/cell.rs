@@ -33,20 +33,4 @@ impl Cellule {
             self.set_alive()
         }
     }
-
-    pub fn count_alive_neighbors(neighbors: &[Self]) -> usize {
-        neighbors.iter().filter(|n| n.is_alive()).count()
-    }
-
-    pub fn alone(neighbors: &[Self]) -> bool {
-        Self::count_alive_neighbors(neighbors) < 2
-    }
-
-    pub fn overpopulated(neighbors: &[Self]) -> bool {
-        Self::count_alive_neighbors(neighbors) > 3
-    }
-
-    pub fn can_be_revived(neighbors: &[Self]) -> bool {
-        Self::count_alive_neighbors(neighbors) == 3
-    }
 }

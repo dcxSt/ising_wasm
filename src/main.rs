@@ -12,6 +12,8 @@ pub enum Msg {
     Step,
     Reset,
     Stop,
+    IncreaseT,
+    DecreaseT,
     ToggleCellule(usize),
     Tick,
 }
@@ -21,6 +23,7 @@ pub struct App {
     cellules: Vec<Cellule>,
     cellules_width: usize,
     cellules_height: usize,
+    temp: f32,
     _interval: Interval,
 }
 
@@ -41,49 +44,7 @@ impl App {
         }
     }
 
-    fn step_gol(&mut self) {
-        let mut to_dead = Vec::new();
-        let mut to_live = Vec::new();
-        for row in 0..self.cellules_height {
-            for col in 0..self.cellules_width {
-                let neighbors = self.neighbors(row as isize, col as isize);
-
-                let current_idx = self.row_col_as_idx(row as isize, col as isize);
-                if self.cellules[current_idx].is_alive() {
-                    if Cellule::alone(&neighbors) || Cellule::overpopulated(&neighbors) {
-                        to_dead.push(current_idx);
-                    }
-                } else if Cellule::can_be_revived(&neighbors) {
-                    to_live.push(current_idx);
-                }
-            }
-        }
-        to_dead
-            .iter()
-            .for_each(|idx| self.cellules[*idx].set_dead());
-        to_live
-            .iter()
-            .for_each(|idx| self.cellules[*idx].set_alive());
-    }
-
     fn step_ising(&mut self) {
-        //     for col in 0..self.cellules_width {
-        //         let neighbors = self.neighbors(row as isize, col as isize);
-
-        //         let current_idx = self.row_col_as_idx(row as isize, col as isize);
-        //         if self.cellules[current_idx].is_alive() {
-        //             if Cellule::alone(&neighbors) || Cellule::overpopulated(&neighbors) {
-        //                 to_dead.push(current_idx);
-        //             }
-        //         } else if Cellule::can_be_revived(&neighbors) {
-        //             to_live.push(current_idx);
-        //         }
-        //     }
-        // }{
-
-        // let mut to_dead = Vec::new(); // old code
-        // let mut to_live = Vec::new(); // old code
-        //
         // pick a random cell and flip it with an ising probability
         let mut rng = rand::thread_rng();
         let row = rng.gen_range(0..self.cellules_height);
@@ -99,7 +60,7 @@ impl App {
         };
 
         // stat mech variables, this is very hacky code that needs refactoring
-        let beta: f32 = 1.0; // = 1/(k_b*T) 
+        let beta: f32 = 1.0/self.temp; // = 1/(k_b*T) 
         let jay: f32 = 1.0;
         let h = (- jay * sigma * (neighbor_spins.iter().sum::<f32>() as f32)) as f32; // the energy
 
@@ -121,42 +82,6 @@ impl App {
                 }
             };
         };
-
-
-        // for row in 0..self.cellules_height {
-        //     for col in 0..self.cellules_width {
-        //         let neighbors = self.neighbors(row as isize, col as isize);
-
-        //         let current_idx = self.row_col_as_idx(row as isize, col as isize);
-        //         if self.cellules[current_idx].is_alive() {
-        //             if Cellule::alone(&neighbors) || Cellule::overpopulated(&neighbors) {
-        //                 to_dead.push(current_idx);
-        //             }
-        //         } else if Cellule::can_be_revived(&neighbors) {
-        //             to_live.push(current_idx);
-        //         }
-        //     }
-        // }
-        // to_dead
-        //     .iter()
-        //     .for_each(|idx| self.cellules[*idx].set_dead());
-        // to_live
-        //     .iter()
-        //     .for_each(|idx| self.cellules[*idx].set_alive());
-
-    }
-
-    fn neighbors(&self, row: isize, col: isize) -> [Cellule; 8] {
-        [
-            self.cellules[self.row_col_as_idx(row + 1, col)],
-            self.cellules[self.row_col_as_idx(row + 1, col + 1)],
-            self.cellules[self.row_col_as_idx(row + 1, col - 1)],
-            self.cellules[self.row_col_as_idx(row - 1, col)],
-            self.cellules[self.row_col_as_idx(row - 1, col + 1)],
-            self.cellules[self.row_col_as_idx(row - 1, col - 1)],
-            self.cellules[self.row_col_as_idx(row, col - 1)],
-            self.cellules[self.row_col_as_idx(row, col + 1)],
-        ]
     }
 
     fn neighbors_ising(&self, row: isize, col: isize) -> [Cellule; 4] {
@@ -200,7 +125,8 @@ impl Component for App {
         let interval = Interval::new(2, move || callback.emit(())); // edit 2 to whatever you want
 
         // let (cellules_width, cellules_height) = (53, 40);
-        let (cellules_width, cellules_height) = (95, 45);
+        // let (cellules_width, cellules_height) = (95, 45);
+        let (cellules_width, cellules_height) = (80,80);
 
 
         Self {
@@ -208,6 +134,7 @@ impl Component for App {
             cellules: vec![Cellule::new_dead(); cellules_width * cellules_height],
             cellules_width,
             cellules_height,
+            temp: 1.0, // initiate this to 1.0
             _interval: interval,
         }
     }
@@ -238,6 +165,16 @@ impl Component for App {
                 self.active = false;
                 log::info!("Stop");
                 false
+            }
+            Msg::IncreaseT => {
+                self.temp += 0.05;
+                log::info!("Increase Temperature");
+                true
+            }
+            Msg::DecreaseT => {
+                self.temp -= 0.05;
+                log::info!("Decrease Temperature");
+                true // not to self: what does this do?
             }
             Msg::ToggleCellule(idx) => {
                 let cellule = self.cellules.get_mut(idx).unwrap();
@@ -294,6 +231,9 @@ impl Component for App {
                             <button class="game-button" onclick={ctx.link().callback(|_| Msg::Start)}>{ "Start" }</button>
                             <button class="game-button" onclick={ctx.link().callback(|_| Msg::Stop)}>{ "Stop" }</button>
                             <button class="game-button" onclick={ctx.link().callback(|_| Msg::Reset)}>{ "Reset" }</button>
+                            <button class="game-button" onclick={ctx.link().callback(|_| Msg::IncreaseT)}>{ "+T" }</button>
+                            <button class="game-button" onclick={ctx.link().callback(|_| Msg::DecreaseT)}>{ "-T" }</button>
+                            <button class="game-button">{ self.temp }</button>
                         </div>
                     </section>
                 </section>
