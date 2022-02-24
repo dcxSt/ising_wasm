@@ -130,11 +130,11 @@ impl Component for App {
 
 
         Self {
-            active: false,
+            active: true, // start with active cellules
             cellules: vec![Cellule::new_dead(); cellules_width * cellules_height],
             cellules_width,
             cellules_height,
-            temp: 1.0, // initiate this to 1.0
+            temp: 2.40, // initiate this to 1.0
             _interval: interval,
         }
     }
@@ -233,7 +233,8 @@ impl Component for App {
                             <button class="game-button" onclick={ctx.link().callback(|_| Msg::Reset)}>{ "Reset" }</button>
                             <button class="game-button" onclick={ctx.link().callback(|_| Msg::IncreaseT)}>{ "+T" }</button>
                             <button class="game-button" onclick={ctx.link().callback(|_| Msg::DecreaseT)}>{ "-T" }</button>
-                            <button class="game-button">{ self.temp }</button>
+                            <br/>
+                            <button class="game-button">{ format!("T = {:.2}",self.temp) }</button>
                         </div>
                     </section>
                 </section>
